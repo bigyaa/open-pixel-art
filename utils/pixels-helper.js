@@ -1,48 +1,38 @@
 const stringify = require('json-stringify-pretty-compact');
 
-function pixelSortFunction(a, b) {
-  const xDiff = a.x - b.x;
-  const yDiff = a.y - b.y;
+/**
+ * Compares two pixel objects based on their vertical (y) position first,
+ * then horizontal (x) position if the y coordinates are equal.
+ *
+ * @param {{ x: number, y: number }} a - The first pixel.
+ * @param {{ x: number, y: number }} b - The second pixel.
+ * @returns {number} A negative value if `a` comes before `b`, positive if after, or 0 if equal.
+ */
+const pixelSortFunction = (a, b) => (a.y - b.y) || (a.x - b.x);
 
-  if (yDiff > 0) {
-    // pixel is further down a row
-    return 1;
-  }
+/**
+ * Sorts pixel data within a JSON object.
+ *
+ * @param {{ data: Array<{ x: number, y: number }> }} pixelJson - JSON object containing an array of pixels.
+ * @returns {{ data: Array<{ x: number, y: number }> }} A new JSON object with the pixels sorted.
+ */
+const sortPixels = (pixelJson) => ({
+  data: Array.isArray(pixelJson.data)
+    ? [...pixelJson.data].sort(pixelSortFunction)
+    : []
+});
 
-  if (yDiff < 0) {
-    // pixel a closer to the beginning of a row
-    return -1;
-  }
-
-  // yDiff must be 0 to make it here
-
-  if (xDiff > 0) {
-    // pixel a is in a lower row
-    return 1;
-  }
-
-  if (xDiff < 0) {
-    // pixel a is in a higher row
-    return -1;
-  }
-
-  return 0;
-}
-
-function sortPixels(pixelJson) {
-  const data = [...pixelJson.data].sort(pixelSortFunction);
-
-  return {
-    data
-  };
-}
-
-function pixelsToString(pixelJson) {
-  return stringify(pixelJson, { indent: 2, maxLength: 100 });
-}
+/**
+ * Converts a pixel JSON object into a pretty-printed JSON string.
+ *
+ * @param {Object} pixelJson - The JSON object to convert.
+ * @returns {string} A formatted string representation of the JSON.
+ */
+const pixelsToString = (pixelJson) =>
+  stringify(pixelJson, { indent: 2, maxLength: 100 });
 
 module.exports = {
   sortPixels,
   pixelSortFunction,
-  pixelsToString
+  pixelsToString,
 };
